@@ -9,10 +9,10 @@
 </script>
 
 <header class="flex items-center justify-between border-b border-line px-6 py-4">
-    <a href="/" class="heading">Teknikfruzz</a>
+    <a href="/" class="heading">prov</a>
     <nav class="flex items-center gap-3">
         {#if user}
-            <a href="auth/profile">Profil</a>
+            <a href="/auth/profile">Profil</a>
         {:else}
             <a href="/auth/login" class="btn-primary">Logga in</a>
         {/if}

@@ -6,7 +6,6 @@ import {randomBytes} from 'node:crypto';
 import {dev} from '$app/env';
 import {db} from '../../prisma/db';
 import {getSession, getUser, hashSessionToken} from '#lib/server/auth.ts';
-import {appEvents, kickChannel} from '#lib/events.ts';
 
 const MONTH = 60 * 60 * 24 * 30;
 const DUMMY_HASH = bcrypt.hashSync('dummy-password', 10);
@@ -85,7 +84,6 @@ export const logout = form(async () => {
 
     if (session) {
         await db.orm.public.Session.where({id: session.sessionId}).delete();
-        appEvents.emit(kickChannel, [session.sessionId]);
     }
 
     cookies.delete('session', {path: '/'});
@@ -129,6 +127,5 @@ export const logoutOthers = form(async () => {
         await db.orm.public.Session.where({id}).delete();
     }
 
-    appEvents.emit(kickChannel, others);
     await devices().refresh();
 });
