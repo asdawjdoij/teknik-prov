@@ -1,0 +1,36 @@
+// use prisma-8
+model User {
+  id           String    @id @default(uuid())
+  name         String    @unique
+  passwordHash String
+  sessions     Session[]
+  votes        Vote[]
+}
+
+model Session {
+  id        String  @id
+  userId    String
+  expiresAt Float
+  createdAt Float
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Motion {
+  id       String @id @default(uuid())
+  text     String
+  votes    Vote[]
+  votesYes Int
+  votesNo  Int
+}
+
+model Vote {
+  yes      Boolean
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  motionId String
+  motion   Motion  @relation(fields: [motionId], references: [id], onDelete: Cascade)
+}
