@@ -12,6 +12,7 @@ export const allVotes = query(v.optional(v.string()), async (motionId) => {
         .include('user', (u) => u.select('name'))
         .all();
 });
+//
 
 export const find = query(v.optional(v.string()), async (id) => {
     const motion = id === undefined ? undefined : await db.orm.public.Motion.where({id: id}).first()
