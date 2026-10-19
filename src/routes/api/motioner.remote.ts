@@ -12,7 +12,7 @@ export const allVotes = query(v.optional(v.string()), async (motionId) => {
         .include('user', (u) => u.select('name'))
         .all();
 });
-//
+
 
 export const find = query(v.optional(v.string()), async (id) => {
     const motion = id === undefined ? undefined : await db.orm.public.Motion.where({id: id}).first()
@@ -30,7 +30,7 @@ export const create = form(
     }),
     async ({text}) => {
 
-        const motion = await db.orm.public.Motion.create({text: text});
+        const motion = await db.orm.public.Motion.create({text: text, votesYes: 0, votesNo: 0});
 
         motionEvents.emit(motionChannel, motion);
 
@@ -45,6 +45,12 @@ export const vote = form(
         yes: v.pipe(v.string(), v.nonEmpty()),
     }),
     async ({motionId, userId, yes}) => {
+        const existingVote = await db.orm.public.Vote.where({userId: userId, motionId: motionId}).first()
+
+        if (existingVote !== null) {
+            return redirect(303, `/motioner/${motionId}`)
+        }
+
         const vote = await db.orm.public.Vote.create({
             motionId: motionId,
             userId: userId,
@@ -54,9 +60,9 @@ export const vote = form(
         const motion = await find(motionId)
 
         if (yes === "ja") {
-            motion.votesYes += 1
+            await db.orm.public.Motion.where({ id: motionId }).update({ votesYes: motion.votesYes + 1 });
         } else {
-            motion.votesNo += 1
+            await db.orm.public.Motion.where({ id: motionId }).update({ votesNo: motion.votesNo + 1 });
         }
 
         const user = await findUser(userId)
